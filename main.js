@@ -252,8 +252,8 @@ var app = new Vue({
             this.viewer = new ROS3D.Viewer({
                 background: '#cccccc',
                 divID: 'div3DViewer',
-                width: 400,
-                height: 300,
+                width: 360,
+                height: 280,
                 antialias: true,
                 fixedFrame: 'fastbot_1/odom'
             })
