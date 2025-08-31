@@ -92,39 +92,99 @@
         </div>
       </div>
 
-      <!-- Row 2: Commands (moved here, right below first container/row) -->
-      <div class="row">
-        <div class="col-md-4 text-center my-2">
-            <h5 class="text-center">Robot Description</h5>
-            <div id="div3DViewer"></div>
-        </div>   
-        
-        <div class="col-4">
-          <div class="card mb-3">
+        <!-- Row 2: Model (L) • Commands (M) • Status (R) -->
+        <div class="row">
+        <!-- Left: Robot model display -->
+        <div class="col-12 col-md-4 my-2">
+            <div class="card h-100">
             <div class="card-body text-center">
-              <h5>Commands</h5>
-              <div class="my-2">
-                <button @click="forward"  :disabled="loading || !connected" class="btn btn-primary">Go forward</button>
-              </div>
-              <div class="row">
-                <div class="col-md-4 my-2">
-                  <button @click="turnLeft"  :disabled="loading || !connected" class="btn btn-primary">Turn left</button>
-                </div>
-                <div class="col-md-4 my-2">
-                  <button @click="stop"      :disabled="loading || !connected" class="btn btn-danger">Stop</button>
-                </div>
-                <div class="col-md-4 my-2">
-                  <button @click="turnRight" :disabled="loading || !connected" class="btn btn-primary">Turn right</button>
-                </div>
-              </div>
-              <div class="my-2">
-                <button @click="backward" :disabled="loading || !connected" class="btn btn-primary">Go backward</button>
-              </div>
+                <h5 class="card-title">Robot Model</h5>
+                <div id="div3DViewer" class="d-flex justify-content-center"></div>
             </div>
-          </div>
+            </div>
         </div>
-     
-      </div>
+
+        <!-- Middle: Commands -->
+        <div class="col-12 col-md-4 my-2">
+            <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Commands</h5>
+
+                <div class="mb-2">
+                <button @click="forward" :disabled="loading || !connected" class="btn btn-primary">Go forward</button>
+                </div>
+
+                <div class="row">
+                <div class="col-4 my-2">
+                    <button @click="turnLeft" :disabled="loading || !connected" class="btn btn-primary">Turn left</button>
+                </div>
+                <div class="col-4 my-2">
+                    <button @click="stop" :disabled="loading || !connected" class="btn btn-danger">Stop</button>
+                </div>
+                <div class="col-4 my-2">
+                    <button @click="turnRight" :disabled="loading || !connected" class="btn btn-primary">Turn right</button>
+                </div>
+                </div>
+
+                <div class="mt-2">
+                <button @click="backward" :disabled="loading || !connected" class="btn btn-primary">Go backward</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Right: Robot status dashboard -->
+        <div class="col-12 col-md-4 my-2">
+            <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-center">Robot Status</h5>
+
+                <div class="row text-center">
+                <div class="col-6 mb-3">
+                    <div class="border rounded p-2">
+                    <div class="h5 mb-0">{{ robotStatus.speed.toFixed(2) }} m/s</div>
+                    <small class="text-muted">Linear Speed</small>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="border rounded p-2">
+                    <div class="h5 mb-0">{{ robotStatus.speedAngular.toFixed(2) }} rad/s</div>
+                    <small class="text-muted">Angular Speed</small>
+                    </div>
+                </div>
+
+                <div class="col-6 mb-3">
+                    <div class="border rounded p-2">
+                    <div class="h5 mb-0">X {{ robotStatus.position.x.toFixed(2) }} m</div>
+                    <small class="text-muted">Position</small>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="border rounded p-2">
+                    <div class="h5 mb-0">Y {{ robotStatus.position.y.toFixed(2) }} m</div>
+                    <small class="text-muted">Position</small>
+                    </div>
+                </div>
+
+                <div class="col-6 mb-3">
+                    <div class="border rounded p-2">
+                    <div class="h5 mb-0">{{ robotStatus.orientation.toFixed(1) }}°</div>
+                    <small class="text-muted">Orientation</small>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="border rounded p-2">
+                    <div class="h5 mb-0">{{ robotStatus.battery.toFixed(2) }}%</div>
+                    <small class="text-muted">Battery</small>
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+        </div>
+        </div>
+
 
       <!-- Row 3: Map & Camera -->
       <div class="row">

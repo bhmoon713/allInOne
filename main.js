@@ -18,6 +18,14 @@ var app = new Vue({
         rosbridge_address: 'wss://i-0c34017576fd20f71.robotigniteacademy.com/4f4f113a-01d0-43db-8f40-b6c1394290d7/rosbridge/',
         port: '9090',
         
+        // Robot Status (shown in sidebar)
+        robotStatus: {
+        speed: 0.0,                 // linear speed (m/s), from Twist or odom
+        speedAngular: 0.0,          // angular speed (rad/s), from Twist or odom
+        position: { x: 0.0, y: 0.0 },
+        orientation: 0.0,           // yaw in degrees
+        battery: 100
+        },
         // 2D stuff  
         mapRotated: false,
         mapViewer: null,
