@@ -133,13 +133,13 @@ var app = new Vue({
 
         turnLeft: function () {
         this.buttonsOverride = true;
-        this.manualLinear = 0.2;   // or 0.0 if you want pure rotation
+        this.manualLinear = 0.0;   // or 0.0 if you want pure rotation
         this.manualAngular = -0.5;
         },
 
         turnRight: function () {
         this.buttonsOverride = true;
-        this.manualLinear = 0.2;   // or 0.0 if you want pure rotation
+        this.manualLinear = 0.0;   // or 0.0 if you want pure rotation
         this.manualAngular = +0.5;
         },
 
@@ -168,7 +168,7 @@ var app = new Vue({
             let topic = new ROSLIB.Topic({
                 ros: this.ros,
                 name: '/fastbot_1/cmd_vel',
-                messageType: 'geometry_msgs/Twist'
+                messageType: 'geometry_msgs/msg/Twist'
             })
             let message = new ROSLIB.Message({
                 linear: { x: 0.2, y: 0, z: 0, },
