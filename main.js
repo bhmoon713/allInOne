@@ -12,7 +12,7 @@ var app = new Vue({
     loading: false,
     topic: null,
     message: null,
-    rosbridge_address: 'wss://i-0bbdde90ec066d0d1.robotigniteacademy.com/cdaaedd1-6cfb-461f-816b-882c834c034e/rosbridge/',
+    rosbridge_address: 'wss://i-0a6c68ffe37aa397b.robotigniteacademy.com/7c1b40e8-0db2-4023-be99-bc4666011555/rosbridge/',
     port: '9090',
 
     // Robot Status (shown in sidebar)
@@ -335,12 +335,32 @@ var app = new Vue({
     },
   },
 
-  mounted() {
-    window.addEventListener('mouseup', this.stopDrag);
-    this.interval = setInterval(() => {
-      if (this.ros && this.ros.isConnected) {
-        this.ros.getNodes(() => {}, () => {});
-      }
-    }, 10000);
-  },
+mounted() {
+// your existing mouseup listener
+window.addEventListener('mouseup', this.stopDrag);
+
+// existing connection check every 10s
+this.interval = setInterval(() => {
+    if (this.ros && this.ros.isConnected) {
+    this.ros.getNodes(() => {}, () => {});
+    }
+}, 10000);
+
+// --- Simulated battery drain every 5s ---
+this.batteryInterval = setInterval(() => {
+    // subtract 1–3% randomly
+    this.robotStatus.battery -= Math.random() * 3;
+
+    // clamp between 0 and 100
+    if (this.robotStatus.battery < 0) this.robotStatus.battery = 0;
+    if (this.robotStatus.battery > 100) this.robotStatus.battery = 100;
+}, 5000);
+},
+beforeDestroy() {
+// clean up timers
+if (this.interval) clearInterval(this.interval);
+if (this.batteryInterval) clearInterval(this.batteryInterval);
+window.removeEventListener('mouseup', this.stopDrag);
+},
+
 });
