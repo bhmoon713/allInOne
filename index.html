@@ -1,6 +1,7 @@
 <html>
 
 <head>
+  	<title>Moon's Robot Cafe !</title>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
      crossorigin="anonymous">
@@ -12,9 +13,105 @@
   	<script type="text/javascript" src="mjpegcanvas.min.js"></script>
     <!-- Vuejs -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"> </script>
+
+
+    <style type="text/css">
+		#dragstartzone {
+			position: relative;
+			display: inline-block;
+			width: 200px;
+			height: 200px;
+			border: 1px solid #333;
+			border-radius: 50%;
+			z-index: 10;
+			-moz-user-select: -moz-none;
+			-khtml-user-select: none;
+			-webkit-user-select: none;
+		}
+
+		#dragCircle {
+			position: absolute;
+			z-index: 9;
+			border: 1px solid transparent;
+			border-radius: 50%;
+			background-color: rgba(0, 0, 0, 30%);
+			-moz-user-select: -moz-none;
+			-khtml-user-select: none;
+			-webkit-user-select: none;
+		}
+
+		#dragCircle:hover {
+			background-color: lightcoral;
+		}
+	</style>
+
 </head>
 
 <body>
+    <!-- header of the page -->
+	<header class="header">
+		<div class="container">
+			<div class="jumbotron text-center">
+				<h1>Hello from The Construct!</h1>
+				<p>Let's connect our website to a ROS robot!</p>
+			</div>
+		</div>
+	</header>
+    
+	<!-- main content -->
+	<main id="app">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4">
+					<div class="card">
+						<div class="card-body">
+							<h3>{{ menu_title }}</h3>
+							<hr>
+							<label>ROSBridge address</label>
+                            <br>
+                            <input type="text" v-model="rosbridge_address" />
+                            <br>
+                            <button class="mt-2 btn btn-success" v-if="connected" @click="disconnect">Connected!</button>
+                            <button class="mt-2 btn btn-primary" v-else @click="connect">Connect!</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h2 class="text-center">Joystick</h2>
+                            <hr>
+                            <p>Some actions for the robot</p>
+                            <div id="dragstartzone" @mousedown="startDrag" @mousemove="doDrag">
+                            </div>
+                            <div id="dragCircle" :style="dragCircleStyle"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="text-center">Joystick values</h2>
+                            <hr />
+                            <p>Vertical: {{ joystick.vertical.toFixed(3) }}</p>
+                            <br />
+                            <p>Horizontal: {{ joystick.horizontal.toFixed(3) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- footer -->
+    <footer class="footer mt-auto bg-dark text-light">
+        <div class="container">
+            <h5>page ends here!</h5>
+        </div>
+    </footer>
+    
+
+    
     <div id="app" class="container">
         <div class="row">
             <div class="col-md-12 col-sm-6 text-center">
