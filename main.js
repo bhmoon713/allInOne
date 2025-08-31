@@ -74,7 +74,7 @@ var app = new Vue({
                 this.setCamera()            
                 this.mapViewer = new ROS2D.Viewer({
                     divID: 'map',
-                    width: 420,
+                    width: 380,
                     height: 360
                 });
 
@@ -190,8 +190,8 @@ var app = new Vue({
             let viewer = new MJPEGCANVAS.Viewer({
                 divID: 'divCamera',
                 host: host,
-                width: 320,
-                height: 240,
+                width: 500,
+                height: 360,
                 topic: '/fastbot_1/camera/image_raw',
                 ssl: true,
             })
