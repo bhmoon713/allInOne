@@ -44,7 +44,7 @@
   <!-- Header -->
   <header class="header">
     <div class="container">
-      <div class="jumbotron text-center my-4">
+      <div class="jumbotron text-center my-1">
         <h1>Hello from The Construct!</h1>
         <p>Let's connect our website to a ROS robot!</p>
       </div>
@@ -119,6 +119,7 @@
           </div>
         </div>
         <div class="col-md-6 text-center my-2">
+            <h5 class="text-center">Robot Description</h5>
             <div id="div3DViewer"></div>
         </div>        
       </div>
@@ -126,14 +127,17 @@
       <!-- Row 3: Map & Camera -->
       <div class="row">
         <div class="col-md-6 my-2">
-          <h5 class="text-center">Map</h5>
-          <div id="map"></div>
+          <h5 class="text-left">Map</h5>
+          <div id="map" class="d-flex justify-content-center align-items-center" 
+                style="height: 360px;">></div>
         </div>
         <div class="col-md-6 my-2">
-          <h5 class="text-center">Camera</h5>
-          <div id="divCamera"></div>
+            <h5 class="text-left">Camera</h5>
+            <div id="divCamera" class="d-flex justify-content-center align-items-center" 
+                style="height: 360px;">
+                <!-- MJPEG Canvas will appear centered here -->
+            </div>
         </div>
-      </div>
     </div>
   </main>
 

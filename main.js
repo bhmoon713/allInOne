@@ -17,6 +17,9 @@ var app = new Vue({
         message: null,
         rosbridge_address: 'wss://i-0c34017576fd20f71.robotigniteacademy.com/4f4f113a-01d0-43db-8f40-b6c1394290d7/rosbridge/',
         port: '9090',
+        
+        // 2D stuff  
+        mapRotated: false,
         mapViewer: null,
         mapGridClient: null,
         interval: null,
@@ -73,19 +76,39 @@ var app = new Vue({
                     divID: 'map',
                     width: 420,
                     height: 360
-                })
+                });
 
                 // Setup the map client.
                 this.mapGridClient = new ROS2D.OccupancyGridClient({
                     ros: this.ros,
                     rootObject: this.mapViewer.scene,
                     continuous: true,
-                })
+                });
+                // Scale the canvas to fit to the map
                 // Scale the canvas to fit to the map
                 this.mapGridClient.on('change', () => {
-                    this.mapViewer.scaleToDimensions(this.mapGridClient.currentGrid.width, this.mapGridClient.currentGrid.height);
-                    this.mapViewer.shift(this.mapGridClient.currentGrid.pose.position.x, this.mapGridClient.currentGrid.pose.position.y)
-                })
+                this.mapViewer.scaleToDimensions(
+                    this.mapGridClient.currentGrid.width,
+                    this.mapGridClient.currentGrid.height
+                );
+                this.mapViewer.shift(
+                    this.mapGridClient.currentGrid.pose.position.x,
+                    this.mapGridClient.currentGrid.pose.position.y
+                );
+
+                // Rotate canvas 90° CW once
+                if (!this.mapRotated) {
+                    const canvas = document.querySelector('#map canvas');
+                    if (canvas) {
+                    canvas.style.transform = 'rotate(90deg)';
+                    canvas.style.transformOrigin = 'center center';
+                    // optional: let the rotated canvas overflow the container
+                    const mapDiv = document.getElementById('map');
+                    if (mapDiv) mapDiv.style.overflow = 'visible';
+                    this.mapRotated = true;
+                    }
+                }
+                });
 
             })
             this.ros.on('error', (error) => {
