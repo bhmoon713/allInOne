@@ -15,7 +15,7 @@ var app = new Vue({
         loading: false,
         topic: null,
         message: null,
-        rosbridge_address: 'wss://i-0c34017576fd20f71.robotigniteacademy.com/4f4f113a-01d0-43db-8f40-b6c1394290d7/rosbridge/',
+        rosbridge_address: 'wss://i-0b4248f1835ce837d.robotigniteacademy.com/3796eea1-797a-492e-bd2e-40c1536f1ceb/rosbridge/',
         port: '9090',
         
         // Robot Status (shown in sidebar)
@@ -24,7 +24,11 @@ var app = new Vue({
         speedAngular: 0.0,          // angular speed (rad/s), from Twist or odom
         position: { x: 0.0, y: 0.0 },
         orientation: 0.0,           // yaw in degrees
-        battery: 100
+        battery: 100,
+        twistSub: null,
+        odomSub: null,
+        lastTwistAt: 0,
+        lastOdomAt: 0,
         },
         // 2D stuff  
         mapRotated: false,
@@ -76,6 +80,7 @@ var app = new Vue({
                 this.pubInterval = setInterval(this.publish, 100)
                 this.connected = true
                 this.loading = false
+                this.setupROSCommunication();
 
                 this.setup3DViewer()
 
@@ -129,6 +134,8 @@ var app = new Vue({
                 this.unset3DViewer()
                 clearInterval(this.pubInterval)
                 document.getElementById('map').innerHTML = ''
+                if (this.twistSub) this.twistSub.unsubscribe();
+                if (this.odomSub)  this.odomSub.unsubscribe();
             })
         },
         
@@ -298,6 +305,47 @@ var app = new Vue({
         unset3DViewer() {
             document.getElementById('div3DViewer').innerHTML = ''
         },
+
+        setupROSCommunication: function () {
+        // Twist subscriber → linear & angular speeds
+        this.twistSub = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/fastbot_1/cmd_vel',                 // change if your topic differs
+            messageType: 'geometry_msgs/msg/Twist'      // ROS 2 type
+        });
+        this.twistSub.subscribe((msg) => {
+            // Speed straight from commanded Twist
+            this.robotStatus.speed        = Number((msg.linear  && msg.linear.x)  || 0);
+            this.robotStatus.speedAngular = Number((msg.angular && msg.angular.z) || 0);
+            this.lastTwistAt = Date.now();
+        });
+
+        // Odometry subscriber → position (x,y) and yaw (deg)
+        this.odomSub = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/fastbot_1/odom',                    // or '/odometry/filtered' if that’s what you use
+            messageType: 'nav_msgs/msg/Odometry'
+        });
+        this.odomSub.subscribe((odom) => {
+            const p = odom.pose.pose.position;
+            const q = odom.pose.pose.orientation;
+
+            // position
+            this.robotStatus.position = {
+            x: Number(p && p.x || 0),
+            y: Number(p && p.y || 0)
+            };
+
+            // yaw (rad → deg) from quaternion
+            const siny_cosp = 2 * ((q.w||0) * (q.z||0) + (q.x||0) * (q.y||0));
+            const cosy_cosp = 1 - 2 * ((q.y||0) * (q.y||0) + (q.z||0) * (q.z||0));
+            const yaw = Math.atan2(siny_cosp, cosy_cosp);            // radians
+            this.robotStatus.orientation = (yaw * 180) / Math.PI;    // degrees
+
+            this.lastOdomAt = Date.now();
+        });
+        },
+
 
 
     },
