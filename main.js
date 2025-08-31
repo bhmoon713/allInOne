@@ -42,6 +42,9 @@ var app = new Vue({
         },
         // publisher
         pubInterval: null,
+        buttonsOverride: false,
+        manualLinear: 0,
+        manualAngular: 0,
 
     },
     // helper methods to connect to ROS
@@ -88,18 +91,21 @@ var app = new Vue({
             })
         },
         
-        publish: function() {
+            publish: function () {
+            const lin = this.buttonsOverride ? this.manualLinear  : this.joystick.vertical;
+            const ang = this.buttonsOverride ? this.manualAngular : this.joystick.horizontal;
+
             let topic = new ROSLIB.Topic({
                 ros: this.ros,
                 name: '/fastbot_1/cmd_vel',
-                // messageType: 'geometry_msgs/Twist'
-                messageType: 'geometry_msgs/msg/Twist'
-            })
+                messageType: 'geometry_msgs/msg/Twist' // unify to ROS 2 style
+            });
+
             let message = new ROSLIB.Message({
-                linear: { x: this.joystick.vertical, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: this.joystick.horizontal, },
-            })
-            topic.publish(message)
+                linear:  { x: lin, y: 0, z: 0 },
+                angular: { x: 0, y: 0, z: -ang } // note the negate to keep right=+
+            });
+            topic.publish(message);
         },
         
         disconnect: function() {
@@ -109,49 +115,38 @@ var app = new Vue({
         setTopic: function() {
             this.topic = new ROSLIB.Topic({
                 ros: this.ros,
-                name: '/fastbot/cmd_vel',
-                messageType: 'geometry_msgs/Twist'
+                name: '/fastbot_1/cmd_vel',
+                messageType: 'geometry_msgs/msg/Twist'
             })
         },
-        forward: function() {
-            this.message = new ROSLIB.Message({
-                linear: { x: 0.2, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: 0, },
-            })
-            this.setTopic()
-            this.topic.publish(this.message)
+        forward: function () {
+        this.buttonsOverride = true;
+        this.manualLinear = 0.2;
+        this.manualAngular = 0.0;
         },
-        stop: function() {
-            this.message = new ROSLIB.Message({
-                linear: { x: 0, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: 0, },
-            })
-            this.setTopic()
-            this.topic.publish(this.message)
+
+        backward: function () {
+        this.buttonsOverride = true;
+        this.manualLinear = -0.2;
+        this.manualAngular = 0.0;
         },
-        backward: function() {
-            this.message = new ROSLIB.Message({
-                linear: { x: -0.2, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: 0, },
-            })
-            this.setTopic()
-            this.topic.publish(this.message)
+
+        turnLeft: function () {
+        this.buttonsOverride = true;
+        this.manualLinear = 0.2;   // or 0.0 if you want pure rotation
+        this.manualAngular = -0.5;
         },
-        turnLeft: function() {
-            this.message = new ROSLIB.Message({
-                linear: { x: 0.2, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: 0.5, },
-            })
-            this.setTopic()
-            this.topic.publish(this.message)
+
+        turnRight: function () {
+        this.buttonsOverride = true;
+        this.manualLinear = 0.2;   // or 0.0 if you want pure rotation
+        this.manualAngular = +0.5;
         },
-        turnRight: function() {
-            this.message = new ROSLIB.Message({
-                linear: { x: 0.2, y: 0, z: 0, },
-                angular: { x: 0, y: 0, z: -0.5, },
-            })
-            this.setTopic()
-            this.topic.publish(this.message)
+
+        stop: function () {
+        this.buttonsOverride = false;
+        this.manualLinear = 0.0;
+        this.manualAngular = 0.0;
         },
         setCamera: function() {
             let without_wss = this.rosbridge_address.split('wss://')[1]
