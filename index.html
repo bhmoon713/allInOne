@@ -45,7 +45,7 @@
   <header class="header">
     <div class="container">
       <div class="jumbotron text-center my-1">
-        <h1>Hello from The Construct!</h1>
+        <h1>Moon's FastBot DashBoard!</h1>
         <p>Let's connect our website to a ROS robot!</p>
       </div>
     </div>
@@ -200,7 +200,39 @@
                 <!-- MJPEG Canvas will appear centered here -->
             </div>
         </div>
-    </div>
+      </div>
+
+      <!-- Row 4: Waypoints + Emergency Stop -->
+        <div class="row">
+        <div class="col-12 my-2">
+            <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Waypoints</h5>
+
+                <div class="row">
+                <!-- One button per waypoint -->
+                <div class="col-6 col-md-3 mb-2" v-for="(wp, key) in waypoints" :key="key">
+                    <button
+                    class="btn btn-outline-primary btn-block"
+                    :disabled="!connected || isNavigating || estopActive"
+                    @click="goToWaypoint(key)">
+                    {{ wp.name }}
+                    </button>
+                </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                <button class="btn btn-danger"
+                        :disabled="!connected"
+                        @click="emergencyStop">
+                    EMERGENCY STOP
+                </button>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+
   </main>
 
   <!-- Footer pinned to bottom by mt-auto on a flex column body -->

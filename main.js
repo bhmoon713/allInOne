@@ -65,6 +65,20 @@ var app = new Vue({
         buttonsOverride: false,
         manualLinear: 0,
         manualAngular: 0,
+        // Navigation
+        isNavigating: false,
+        estopActive: false,
+
+        // Topics
+        cmdVelTopic: null,
+        navGoalTopic: null,
+
+            // Waypoints
+        waypoints: {
+        'sofa': { x: -2.63, y: -0.91, theta: 1.0, name: 'Sofa' },
+        'living_room': { x: 1.41, y: -1.93, theta: 1.0, name: 'Living Room' },
+        'kitchen': { x: 0.732, y: 2.53, theta: 1.0, name: 'Kitchen' }
+        }
 
     },
     // helper methods to connect to ROS
@@ -267,7 +281,7 @@ var app = new Vue({
             this.viewer = new ROS3D.Viewer({
                 background: '#cccccc',
                 divID: 'div3DViewer',
-                width: 360,
+                width: 340,
                 height: 280,
                 antialias: true,
                 fixedFrame: 'fastbot_1/odom'
@@ -344,7 +358,78 @@ var app = new Vue({
 
             this.lastOdomAt = Date.now();
         });
+        // Publish nav goals
+        this.navGoalTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/goal_pose',
+            messageType: 'geometry_msgs/msg/PoseStamped'
+        });
+
+        // (Re)use for E-stop zeroing
+        this.cmdVelTopic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/fastbot_1/cmd_vel',
+            messageType: 'geometry_msgs/msg/Twist'
+        });
         },
+
+        goToWaypoint(waypointKey) {
+        if (!this.connected || !this.navGoalTopic) return;
+
+        const wp = this.waypoints[waypointKey];
+        this.isNavigating = true;
+        this.controlMode = 'Navigation to ' + wp.name;
+
+        const now = Date.now();
+        const sec = Math.floor(now / 1000);
+        const nsec = (now % 1000) * 1e6;
+
+        // yaw -> quaternion (z,w) for planar nav
+        const half = wp.theta / 2.0;
+        const qz = Math.sin(half);
+        const qw = Math.cos(half);
+
+        const goal = new ROSLIB.Message({
+            header: { frame_id: 'map', stamp: { sec, nanosec: nsec } },
+            pose: {
+            position: { x: wp.x, y: wp.y, z: 0.0 },
+            orientation: { x: 0.0, y: 0.0, z: qz, w: qw }
+            }
+        });
+
+        this.navGoalTopic.publish(goal);
+
+        // simple demo timeout to re-enable buttons
+        setTimeout(() => {
+            this.isNavigating = false;
+            this.controlMode = 'Manual';
+        }, 5000);
+        },
+
+        emergencyStop() {
+        if (!this.connected || !this.cmdVelTopic) return;
+
+        this.estopActive = true;
+        this.isNavigating = false;
+        this.controlMode = 'EMERGENCY STOP';
+
+        const zero = new ROSLIB.Message({
+            linear:  { x: 0, y: 0, z: 0 },
+            angular: { x: 0, y: 0, z: 0 }
+        });
+
+        // publish zeros for ~1s @20Hz
+        let count = 0;
+        const t = setInterval(() => {
+            this.cmdVelTopic.publish(zero);
+            if (++count >= 20) {
+            clearInterval(t);
+            this.estopActive = false;
+            this.controlMode = 'Manual';
+            }
+        }, 50);
+        },
+
 
 
 
